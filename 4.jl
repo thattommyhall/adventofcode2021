@@ -2,21 +2,13 @@ s2int(s) = parse(Int, s)
 
 function parse_board(s)
     lines = split(s, "\n")
-    grid = hcat(map(split, lines)...)
-    [map(Set, eachrow(grid));map(Set, eachcol(grid))]
+    grid = map(s2int, hcat(map(split, lines)...))
+    [map(Set, eachrow(grid)); map(Set, eachcol(grid))]
 end
 
-eg_board = "14 21 17 24  4
-10 16 15  9 19
-18  8 23 26 20
-22 11 13  6  5
- 2  0 12  3  7"
-
-eg = parse_board(eg_board)
-eg
 function slurp_bingo(filename)
     lines = readlines(filename)
-    numbers = split(lines[1], ',')
+    numbers = map(s2int, split(lines[1], ','))
     boards_string = join(lines[3:end], "\n")
     boards = split(boards_string, "\n\n")
     numbers, map(parse_board, boards)
@@ -27,16 +19,33 @@ function solve(filename)
     numbers, boards = slurp_bingo(filename)
     for number in numbers
         for board in boards
-            broadcast(row->delete!(row,number), board)
-        end
-        for board in boards
-            for line in board
-                if length(line) == 0
-                    return board
-                end
+            broadcast(row -> delete!(row, number), board)
+            if min(map(length, board)...) == 0
+                return reduce(+, union(board...)) * number
             end
         end
-    end 
+    end
 end
 
-solve("")
+solve("4eg.txt")
+solve("4.txt")
+
+score(board, number) = reduce(+, union(board...)) * number
+completed(board) = min(length.(board)...) == 0
+remove(board, number) = broadcast(row -> delete!(row, number), board)
+
+function solve2(filename)
+    numbers, boards = slurp_bingo(filename)
+    for number in numbers
+        for board in boards
+            remove(board, number)
+            if all(completed, boards)
+                return score(board, number)
+            end
+        end
+    end
+end
+
+solve2("4eg.txt")
+solve2("4.txt") == 2980
+
