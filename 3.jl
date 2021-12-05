@@ -5,21 +5,9 @@ end
 eg = slurp_grid("3eg.txt")
 input = slurp_grid("3a.txt")
 
-function flip(bitchar)
-    if bitchar == '1'
-        '0'
-    elseif bitchar == '0'
-        '1'
-    end
-end
+flip(bitchar) = bitchar == '1' ? '0' : '1'
 
-function gamma(col)
-    if length(filter(x -> x == '1', col)) / length(col) >= 0.5
-        '1'
-    else
-        '0'
-    end
-end
+gamma(col) = length(filter(==('1'), col)) / length(col) >= 0.5 ? '1' : '0'
 
 function gamma_rate(m)
     map(gamma, eachcol(m))
@@ -50,7 +38,6 @@ function select_min(m, idx)
     permutedims(hcat([row for row in eachrow(m) if row[idx] == min]...))
 end
 
-
 function oxygen(m)
     s = size(m, 2)
     for idx = 1:s
@@ -76,4 +63,4 @@ function solve2(m)
 end
 
 solve2(eg)
-solve2(input)
+solve2(input) == 1613181
