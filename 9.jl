@@ -9,19 +9,27 @@ function pad(m)
     PaddedView(10, m, (0:y+1, 0:x+1), (1:y, 1:x))
 end
 
-get_neighbors((y, x)) = [[y + 1, x], [y - 1, x], [y, x + 1], [y, x - 1]]
-get_neighbors_values(m, (y, x)) = [m[pos...] for pos in get_neighbors([y, x])]
-function is_low(m, (y, x))
-    current = m[y, x]
-    neighborhood = get_neighbors_values(m, [y, x])
+function get_neighbors(idx)
+    y, x = Tuple(idx)
+    [
+        CartesianIndex(y + 1, x),
+        CartesianIndex(y - 1, x),
+        CartesianIndex(y, x + 1),
+        CartesianIndex(y, x - 1),
+    ]
+end
+
+get_neighbors_values(m, idx) = [m[idx] for idx in get_neighbors(idx)]
+function is_low(m, idx)
+    current = m[idx]
+    neighborhood = get_neighbors_values(m, idx)
     length(filter(<=(current), neighborhood)) == 0
 end
 
 function solve1(filename)
     m = slurp_grid(filename)
-    y_max, x_max = size(m)
     p = pad(m)
-    sum([1 + p[y, x] for y = 1:y_max for x in 1:x_max if is_low(p, pos)])
+    sum([1 + p[idx] for idx in CartesianIndices(m) if is_low(p, idx)])
 end
 
 solve1("9eg.txt") == 15
@@ -29,10 +37,10 @@ solve1("9.txt") == 535
 
 function get_low_points(m)
     p = pad(m)
-    [idx for idx in size(m) if is_low(p, idx)]
+    [idx for idx in CartesianIndices(m) if is_low(p, idx)]
 end
 
-get_basin_neighbors(m, (y, x)) = [n for n in get_neighbors([y, x]) if m[n...] < 9]
+get_basin_neighbors(m, idx) = [idx_ for idx_ in get_neighbors(idx) if m[idx_] < 9]
 
 function basin_size(m, pos)
     m = pad(m)
@@ -57,5 +65,7 @@ function solve2(filename)
     reduce(*, sorted[1:3])
 end
 
-solve2("9eg.txt") == 1134
-solve2("9.txt") == 1122700
+solve2("9eg.txt") 
+solve2("9.txt") 
+
+
