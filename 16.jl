@@ -129,8 +129,21 @@ f_lookup = Dict(
 
 function eval(p::Operator)
     values = map(eval, p.subpackets)
-    f = f_lookup(p.type_id)
+    f = f_lookup[p.type_id]
     f(values)
 end
+
+function eval(s::AbstractString)
+    exp, _ = gobble_packet(slurp_string(s))
+    eval(exp)
+end
+
+eval_file(filename) = eval(readlines(filename)[1])
+
+eval("C200B40A82")
+eval("9C0141080250320F1802104A08") == 1
+
+eval_file("16.txt")
+
 
 
