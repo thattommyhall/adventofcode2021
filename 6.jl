@@ -1,6 +1,7 @@
 to_int(s) = parse(Int, s)
 
-grow(n) = n == 0 ? 6 : n - 1
+
+using DataStructures
 
 function pass_day(fish)
     zero_count = length(filter(==(0), fish))
@@ -10,8 +11,6 @@ function pass_day(fish)
     end
     fish
 end
-
-parse_file(filename) = to_int.(split(read(filename, String), ","))
 
 function solve(filename, num_days)
     fish = parse_file(filename)
@@ -24,27 +23,22 @@ end
 solve("6eg.txt", 80) == 5934
 solve("6.txt", 80)
 
-function pass_n_days(fish::Int, num_days)
-    println("fish!!!! $(fish)")
-    fish = [fish]
-    for i = 1:num_days
-        println(i)
-        fish = pass_day(fish)
-    end
-    fish
-end
-
-pass_n_days(3, 13)
+grow(n) = n == 0 ? 6 : n - 1
+parse_file(filename) = parse.(Int, split(read(filename, String), ","))
 
 function solve2(filename, num_days)
     fishes = parse_file(filename)
-    result = 0
-    for fish in fishes
-        f = pass_n_days(fish, num_days)
-        result += length(f)
+    counts = counter(fishes)
+    for _ in 1:num_days
+        new_counts = counter(Int)
+        for (fish, count) in counts
+            new_counts[grow(fish)] = count
+        end
+        new_counts[8] += new_counts[0]
+        counts = new_counts
     end
-    result
+    sumcounts
 end
-
+solve2("6eg.txt", 256)
 solve2("6eg.txt", 256) == 26984457539
 solve2("6.txt", 80) == 5934
